@@ -1,3 +1,25 @@
+# STUDIOUS-OCTO-TRIBBLE
+
+(Only for Linux, designed for Arch-Based, you want that fine for debian-based?... go fork right now!)
+
+***This tool can:***
+- Made SOCKS5 Client configuration at insane speed, terribly fast and guided with a lot of customizations features.
+- Export, Backup, Import, Recovery, configurations you have do or you have broken.
+- Overwrite on an existing configuration you need replace by other with new settings.
+- Massive-Deployments of one same custom configuration to other's SSH server's over SSH combined with rsync packet capacity's
+- Check by Hashing function the versions of ~/.ssh/authorized_keys file to an user on your distant SSh server's and alert/notify you of Hashed signatures changements
+- An special feature can use systemctl to disable an connection configured and use your ufw firewall for auto-bans the suspicious server subjects of ~/.ssh/authorized_keys signatures changements
+
+# _Open your eyes, stay alert and be focused on this repository, don't go away to fast okay ?!_
+## You have found your sysAdministration weaponized awesome tools to made fast a lot of SOCKS5 proxy's, you can now deploy without pain or dirty mistakes ! ***WELCOME TO THE GREAT EPOCH OF GUIDED-CONFIGURATIONS, FOR... INFINITES SETTING UP INSTANTLY YOU NEED ESTABLISH SOCKS5 PROXY OVER SSH !***
+
+_Buuuuuuuurrrrp!_
+
+- Rick Sanchez, D-634
+----
+
+
+![Screenshot 2021-09-10 at 15-12-52 Rick Sanchez ( rick_sanchez_d_634) • Instagram photos and videos](https://user-images.githubusercontent.com/83157348/132858595-7892121c-c5fa-45ba-acdd-6e167544b8dc.png)  _Rick Sanchez D-634_ ***(The conceptor of this awesome technology)***
 # studious-octo-tribble
 SOCKS5 over SSH automatic connection configurator
 
