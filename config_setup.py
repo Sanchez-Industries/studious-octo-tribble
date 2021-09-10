@@ -4,6 +4,24 @@
 # LIBRARY'S IMPORTATION
 from os import system 
 from StudiousParasites.StudiousPlayloadInjector import Studious_Playload_Injector as PlayloadInjector
+import argparse
+from pathlib import Path
+
+# args Parsing of the command line tool
+parser = argparse.ArgumentParser()
+parser.add_argument("-f","--force", action="store_true",
+                    help="forcing and bypass all conditionnal lock of the guided configuration.")
+parser.add_argument("-I","--inject-into-existing-targets", action="store_true",
+                    help="enable the (to an configuration file already existing) target selection feature.")
+parser.add_argument("-M","--modularity-config-mode", action="store_true",
+                    help="enable the modularity mode of configuration injection feature.")
+parser.add_argument("-0","--disable-config-writing-function", action="store_true",
+                    help="disable all call of the final writes of the configuration.")
+parser.add_argument("-D","--dump-selected-config", action="store_true",
+                    help="dump the selected configuration targeted to load into an buffer.")
+parser.add_argument("-B","--backup-creation-from-buffer", action="store_true",
+                    help="create backup configurations files from data of the dumping buffer.")
+args = parser.parse_args()
 
 # DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
 playload_destination = "/etc/ssh/ssh_config"
@@ -30,7 +48,11 @@ restartAfterSec = 60
 service_description = "automatic SOCKS5 ssh reconnection"
 current_configuration_number_of_SOCKS5_host = 1
 script_location_for_call_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
-            current_configuration_number_of_SOCKS5_host=current_configuration_number_of_SOCKS5_host 
+            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
+    )
+# ???~~~???~~~???
+ssh_addon_modules_filename = "SOCKS5_ssh_addon_modules_n-{current_configuration_number_of_SOCKS5_host}.conf".format(
+            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
     )
 #   =================
 # =====================(RECOMMENDED: DO NOT CHANGE)
@@ -39,8 +61,17 @@ setting_unrecommended_to_mods_StartLimitIntervalSec = 0
 setting_unrecommended_to_mods_RestartSec = 1
 setting_unrecommended_to_mods_User = "root"
 setting_unrecommended_to_mods_Restart = "always"
+name_of_addons_modules_folder = "SOCKS5"
+name_of_modular_configurations_folder = "ssh_config.d"
 # =====================(RECOMMENDED: DO NOT CHANGE)
 
+
+
+# little some injections ...
+modularity_mode_folder_path = "/etc/ssh/{name_of_modular_configurations_folder}/{name_of_addons_modules_folder}".format(
+            name_of_addons_modules_folder = name_of_addons_modules_folder,
+            name_of_modular_configurations_folder = name_of_modular_configurations_folder
+    )
 
 # ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
 # Declaration and formating the playloads configuration for fast injections to the system
@@ -107,9 +138,127 @@ WantedBy=multi-user.target
             setting_unrecommended_to_mods_RestartSec = setting_unrecommended_to_mods_RestartSec,
             setting_unrecommended_to_mods_User = setting_unrecommended_to_mods_User,
             setting_unrecommended_to_mods_Restart = setting_unrecommended_to_mods_Restart )
+# | | | |
+# script for preparation of an new config file in an better way and more... terribly modular !! (PLAYLOAD SAMPLE)
+modularity_mode_of_configuration_injection = """
+sudo mkdir -p {modularity_mode_folder_path}
+# line with grep and I don't know to reconfigure or add the missing include call of modules inside `/etc/ssh/ssh_config.d/`
+sudo touch {modularity_mode_folder_path}/{ssh_addon_modules_filename}
+""".format(
+            ssh_addon_modules_filename = ssh_addon_modules_filename,
+            name_of_modular_configurations_folder = name_of_modular_configurations_folder,
+            modularity_mode_folder_path = modularity_mode_folder_path
+          )
 
+def test_target_path_existance(targeted_path, type_precision_mode=False):
+    target_path = Path(targeted_path)
+    if type_precision_mode:
+        if target_path.is_file():
+            return {"exists": True,"type": "file"} 
+        elif target_path.is_dir():
+            return {"exists": True,"type": "folder"}
+        elif (not (target_path.exists())):
+            return {"exists": False,"type": None}
+    elif not type_precision_mode:
+        return target_path.exists()
 
+def test_target_path_and_wait_specifics_results(targeted_path, wait_exists_results = True, wait_type_results = None):
+    results_of_testing = test_target_path_existance(targeted_path,True)
+    if (type(wait_exists_results) != bool) or (type(wait_exists_results) != int):
+        print("`wait_exists_results` argument of `test_target_path_and_wait_specifics_results` function require an boolean or an integer variable ! not an type : `{}` !".format(type(wait_exists_results)))
+        exit(-1)
+    else:
+        if wait_exists_results:
+            # wait the exists confirmation from the testing function
+            if wait_type_results == None:
+                # not an precise type for results wanted, just exists test
+                return results_of_testing["exists"] == True
+            elif wait_type_results == "file":
+                # precise type `file` for results wanted, because that exist
+                return (results_of_testing["exists"] == True) and (results_of_testing["type"] == "file")
+            elif wait_type_results == "folder":
+                # precise type `file` for results wanted, because that exist
+                return (results_of_testing["exists"] == True) and (results_of_testing["type"] == "folder")
+        elif not wait_exists_results:
+            # wait the no-exists confirmation from the testing function
+            return results_of_testing["exists"] == False
 
+def check_config_number_availability(code_number,modularity_mode=False):
+    testing_targets_list = []
+    #
+    script_location_for_call_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+            current_configuration_number_of_SOCKS5_host = code_number 
+    )
+    #
+    testing_targets_list.append(script_location_for_call_by_the_service)
+    #
+    if modularity_mode:
+        #
+        ssh_addon_modules_filename = "SOCKS5_ssh_addon_modules_n-{current_configuration_number_of_SOCKS5_host}.conf".format(
+                current_configuration_number_of_SOCKS5_host = code_number 
+        )
+        #
+        modularity_mode_folder_path = "/etc/ssh/{name_of_modular_configurations_folder}/{name_of_addons_modules_folder}".format(
+                name_of_addons_modules_folder = name_of_addons_modules_folder,
+                name_of_modular_configurations_folder = name_of_modular_configurations_folder
+        )
+        #
+        checking_destination_filepath = "{modularity_mode_folder_path}/{ssh_addon_modules_filename}".format(
+                modularity_mode_folder_path = modularity_mode_folder_path,
+                ssh_addon_modules_filename = ssh_addon_modules_filename
+        )
+        #
+        testing_targets_list.append(checking_destination_filepath)
+    elif not modularity_mode:
+        testing_targets_list.append(playload_destination)
+    #
+    tested_results_sample = [test_target_path_and_wait_specifics_results(i,wait_exists_results=False,wait_type_results=None) for i in testing_targets_list]
+    if tested_results_sample.count(True) == len(tested_results_sample):
+        return {
+                "status": "available",
+                "amount": 1.0,
+                "module_files_mode": modularity_mode,
+                "number_config_id": code_number
+               }
+    elif tested_results_sample.count(True) < len(tested_results_sample):
+        if tested_results_sample.count(True) > 0:
+            return {
+                    "status": "partially",
+                    "amount": (tested_results_sample.count(True) / (len(tested_results_sample)*1.0)),
+                    "module_files_mode": modularity_mode,
+                    "number_config_id": code_number
+                }
+        elif tested_results_sample.count(True) == 0:
+            return {
+                    "status": "unavailable",
+                    "amount": 0.0,
+                    "module_files_mode": modularity_mode,
+                    "number_config_id": code_number
+                }
+
+def find_next_config_number_available(check_numbers_range=(1,1*10**6),modularity_mode=False):
+    totally_used_id_numbers,partially_used_id_numbers=[],[]
+    result_found = None
+    flag_of_nothing = True
+    for n in range(check_numbers_range[0],check_numbers_range[1]):
+        sample_explained_results = check_config_number_availability(code_number=n,modularity_mode=modularity_mode)
+        if (sample_explained_results["status"] == "available") and (sample_explained_results["amount"] == 1.0):
+            flag_of_nothing = False
+            result_found = n
+            break
+        if (sample_explained_results["status"] == "partially") and (sample_explained_results["amount"] < 1.0):
+            partially_used_id_numbers.append(n)
+            flag_of_nothing = False
+        if (sample_explained_results["status"] == "unavailable") and (sample_explained_results["amount"] == 0.0):
+            totally_used_id_numbers.append(n)
+            flag_of_nothing = True
+    #
+    return {"free_id_number":result_found, "flag_of_nothing":flag_of_nothing, "partially_used_id_numbers":partially_used_id_numbers, "totally_used_id_numbers":totally_used_id_numbers}
+
+# customisation_asks
+def customisation_asks_function():
+    if args.inject_into_existing_targets:
+        pass
 
 #inject the configuration of saved socks5 connection configuration to `/etc/ssh/ssh_config` at the end of file, writing in append mode
 
