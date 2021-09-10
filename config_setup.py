@@ -2,8 +2,8 @@
 #coding: utf-8
 
 # LIBRARY'S IMPORTATION
-from _typeshed import NoneType
 from os import system 
+from StudiousParasites.StudiousPlayloadInjector import Studious_Playload_Injector as PlayloadInjector
 
 # DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
 playload_destination = "/etc/ssh/ssh_config"
@@ -102,31 +102,11 @@ WantedBy=multi-user.target
             setting_unrecommended_to_mods_User = setting_unrecommended_to_mods_User,
             setting_unrecommended_to_mods_Restart = setting_unrecommended_to_mods_Restart )
 
-class Studious_Playload_Injector(object):
-    def __init__(self):
-        pass
 
-    def setDestinationOfInjection(self, destined_filepath):
-        self.destination_filepath = destined_filepath
-
-    def setPlayloadToInjection(self, playload):
-        self.loaded_playload = playload
-
-    def inject(self, destination_filepath = None, configured_playload = None):
-        if type(destination_filepath) == NoneType:
-            destination_filepath = self.destination_filepath
-        if type(configured_playload) == NoneType:
-            configured_playload = self.loaded_playload
-
-        try:
-            #injection operations, from the playload of configuration to the destination file, at the end of file, writing in append mode
-            with open(destination_filepath, "a") as configuration_file:
-                configuration_file.write("\n{}".format(configured_playload))
-                configuration_file.close()
-        except Exception as e:
-            print("\nError ! : \n{e}".format( e = e ))
-            exit(-1)
 
 
 #inject the configuration of saved socks5 connection configuration to `/etc/ssh/ssh_config` at the end of file, writing in append mode
 
+
+
+ParasitesConfigTool = PlayloadInjector()
