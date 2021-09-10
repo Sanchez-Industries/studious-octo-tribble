@@ -1,8 +1,14 @@
 #!/usr/bin/python3
 #coding: utf-8
 
+# LIBRARY'S IMPORTATION
+from _typeshed import NoneType
 from os import system 
 
+# DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
+playload_destination = "/etc/ssh/ssh_config"
+
+# DEFAULT CONFIGURATIONS READY TO BE INJECTED INSIDE `/etc/ssh/ssh_config` FILE
 short_name_Host = ""
 optionnal_setting_PasswordAuthentication = "no"
 optionnal_setting_CheckHostIP = "yes"
@@ -12,6 +18,13 @@ User = "root"
 commented_IdentityFile = ""
 ssh_folder_of_user_path = "~/.ssh/"
 dynamic_port_of_proxy = 4712
+
+# DEFAULT BASH SCRIPT CODE OF THE FILE inside the `/opt/` folder
+custom_command_on_beginning_launch = ""
+custom_command_on_try_connect = ""
+custom_command_on_disconnect = ""
+# the same var `short_name_Host` from ssh_config settings are re-used for the connection bash script and this bash code are called by the systemd service !
+restartAfterSec = 60
 
 
 # Declaration and formating the playload configuration for fast injection to the system
@@ -38,17 +51,6 @@ Host {short_name_Host}
             ssh_folder_of_user_path = ssh_folder_of_user_path,
             dynamic_port_of_proxy = dynamic_port_of_proxy )
 
-#inject the configuration of saved socks5 connection configuration to `/etc/ssh/ssh_config` at the end of file, writing in append mode
-with open("/etc/ssh/ssh_config", "a") as ssh_configuration_file:
-    ssh_configuration_file.write("\n{}".format(playload_to_ssh_config))
-    ssh_configuration_file.close()
-
-
-custom_command_on_beginning_launch = ""
-custom_command_on_try_connect = ""
-custom_command_on_disconnect = ""
-short_name_Host = ""
-restartAfterSec = 60
 
 playload_bash_file_autoSOCKS5_sh="""
 {custom_command_on_beginning_launch}
@@ -66,18 +68,65 @@ done
             restartAfterSec = restartAfterSec
           )
 
+
+current_configuration_number_of_SOCKS5_host = 1
+script_location_for_call_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+            current_configuration_number_of_SOCKS5_host=current_configuration_number_of_SOCKS5_host 
+    )
+
+service_description = "automatic SOCKS5 ssh reconnection"
+
+setting_unrecommended_to_mods_StartLimitIntervalSec = 0
+setting_unrecommended_to_mods_RestartSec = 1
+setting_unrecommended_to_mods_User = "root"
+setting_unrecommended_to_mods_Restart = "always"
+
 automatic_socks5_connection_systemd_service = """
 [Unit]
-Description=automatic SOCKS5 ssh reconnection
+Description={service_description}
 After=network.target
-StartLimitIntervalSec=0
+StartLimitIntervalSec= {setting_unrecommended_to_mods_StartLimitIntervalSec}
 
 [Service]
 Type=simple
-Restart=always
-RestartSec=1
-User=root
-ExecStart=/bin/bash /opt/autoSOCKS5.sh
+Restart={setting_unrecommended_to_mods_Restart}
+RestartSec={setting_unrecommended_to_mods_RestartSec}
+User={setting_unrecommended_to_mods_User}
+ExecStart=/bin/bash {script_location_for_call_by_the_service}
 [Install]
 WantedBy=multi-user.target
-"""
+""".format( script_location_for_call_by_the_service = script_location_for_call_by_the_service,
+            service_description = service_description,
+            setting_unrecommended_to_mods_StartLimitIntervalSec = setting_unrecommended_to_mods_StartLimitIntervalSec,
+            setting_unrecommended_to_mods_RestartSec = setting_unrecommended_to_mods_RestartSec,
+            setting_unrecommended_to_mods_User = setting_unrecommended_to_mods_User,
+            setting_unrecommended_to_mods_Restart = setting_unrecommended_to_mods_Restart )
+
+class Studious_Playload_Injector(object):
+    def __init__(self):
+        pass
+
+    def setDestinationOfInjection(self, destined_filepath):
+        self.destination_filepath = destined_filepath
+
+    def setPlayloadToInjection(self, playload):
+        self.loaded_playload = playload
+
+    def inject(self, destination_filepath = None, configured_playload = None):
+        if type(destination_filepath) == NoneType:
+            destination_filepath = self.destination_filepath
+        if type(configured_playload) == NoneType:
+            configured_playload = self.loaded_playload
+
+        try:
+            #injection operations, from the playload of configuration to the destination file, at the end of file, writing in append mode
+            with open(destination_filepath, "a") as configuration_file:
+                configuration_file.write("\n{}".format(configured_playload))
+                configuration_file.close()
+        except Exception as e:
+            print("\nError ! : \n{e}".format( e = e ))
+            exit(-1)
+
+
+#inject the configuration of saved socks5 connection configuration to `/etc/ssh/ssh_config` at the end of file, writing in append mode
+
