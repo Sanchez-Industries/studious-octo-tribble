@@ -26,8 +26,26 @@ custom_command_on_disconnect = ""
 # the same var `short_name_Host` from ssh_config settings are re-used for the connection bash script and this bash code are called by the systemd service !
 restartAfterSec = 60
 
+# SYSTEMD PLAYLOAD TO SET THE SERVICE CONFIGURED INTO THE SYSTEM
+service_description = "automatic SOCKS5 ssh reconnection"
+current_configuration_number_of_SOCKS5_host = 1
+script_location_for_call_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+            current_configuration_number_of_SOCKS5_host=current_configuration_number_of_SOCKS5_host 
+    )
+#   =================
+# =====================(RECOMMENDED: DO NOT CHANGE)
+# OTHER SPECIFICS CONFIGURATIONS LINES ARGS (RECOMMENDED: DO NOT CHANGE)
+setting_unrecommended_to_mods_StartLimitIntervalSec = 0
+setting_unrecommended_to_mods_RestartSec = 1
+setting_unrecommended_to_mods_User = "root"
+setting_unrecommended_to_mods_Restart = "always"
+# =====================(RECOMMENDED: DO NOT CHANGE)
 
-# Declaration and formating the playload configuration for fast injection to the system
+
+# ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
+# Declaration and formating the playloads configuration for fast injections to the system
+# ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
+# SSH_CONFIG configuration (PLAYLOAD SAMPLE)
 playload_to_ssh_config = """
 Host {short_name_Host}
 	PasswordAuthentication {optionnal_setting_PasswordAuthentication}
@@ -50,8 +68,8 @@ Host {short_name_Host}
             commented_IdentityFile = commented_IdentityFile,
             ssh_folder_of_user_path = ssh_folder_of_user_path,
             dynamic_port_of_proxy = dynamic_port_of_proxy )
-
-
+# | | | |
+# Automatic bash script for connect into SOCKS5 (PLAYLOAD SAMPLE)
 playload_bash_file_autoSOCKS5_sh="""
 {custom_command_on_beginning_launch}
 while :
@@ -67,20 +85,8 @@ done
             short_name_Host = short_name_Host,
             restartAfterSec = restartAfterSec
           )
-
-
-current_configuration_number_of_SOCKS5_host = 1
-script_location_for_call_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
-            current_configuration_number_of_SOCKS5_host=current_configuration_number_of_SOCKS5_host 
-    )
-
-service_description = "automatic SOCKS5 ssh reconnection"
-
-setting_unrecommended_to_mods_StartLimitIntervalSec = 0
-setting_unrecommended_to_mods_RestartSec = 1
-setting_unrecommended_to_mods_User = "root"
-setting_unrecommended_to_mods_Restart = "always"
-
+# | | | |
+# Configuration of the systemd service (PLAYLOAD SAMPLE)
 automatic_socks5_connection_systemd_service = """
 [Unit]
 Description={service_description}
@@ -108,5 +114,5 @@ WantedBy=multi-user.target
 #inject the configuration of saved socks5 connection configuration to `/etc/ssh/ssh_config` at the end of file, writing in append mode
 
 
-
+# Creation of the Object for Playload Injections from `studious-octo-tribble/StudiousParasites/StudiousPlayloadInjector.py`
 ParasitesConfigTool = PlayloadInjector()
