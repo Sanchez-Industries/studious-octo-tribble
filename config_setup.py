@@ -28,7 +28,9 @@ args = parser.parse_args()
 playload_destination = "/etc/ssh/ssh_config"
 
 # DEFAULT CONFIGURATIONS READY TO BE INJECTED INSIDE `/etc/ssh/ssh_config` FILE
-short_name_Host = ""
+short_name_Host = "socks5-n{current_configuration_number_of_SOCKS5_host}".format(
+            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
+    )
 optionnal_setting_PasswordAuthentication = "no"
 optionnal_setting_CheckHostIP = "yes"
 ssh_destination_server_port = 22
@@ -48,7 +50,7 @@ restartAfterSec = 60
 # SYSTEMD PLAYLOAD TO SET THE SERVICE CONFIGURED INTO THE SYSTEM
 service_description = "automatic SOCKS5 ssh reconnection"
 current_configuration_number_of_SOCKS5_host = 1
-script_location_for_call_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+script_location_to_be_called_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
             current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
     )
 # ???~~~???~~~???
@@ -74,33 +76,7 @@ modularity_mode_folder_path = "/etc/ssh/{name_of_modular_configurations_folder}/
             name_of_modular_configurations_folder = name_of_modular_configurations_folder
     )
 
-# ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
-# Declaration and formating the playloads configuration for fast injections to the system
-# ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
-# SSH_CONFIG configuration (PLAYLOAD SAMPLE)
-playload_to_ssh_config = """
-Host {short_name_Host}
-	PasswordAuthentication {optionnal_setting_PasswordAuthentication}
-	CheckHostIP {optionnal_setting_CheckHostIP}
-	ConnectTimeout 0
-	Port {ssh_destination_server_port}
-	Hostname  {server_domain_name_or_ip_addr}
-	User {User}
-	Protocol 2
-	{commented_IdentityFile}IdentityFile {ssh_folder_of_user_path}{ssh_id_file}
-	DynamicForward {dynamic_port_of_proxy}
-	RequestTTY no
-	SessionType none
-""".format( short_name_Host=short_name_Host,
-            optionnal_setting_PasswordAuthentication = optionnal_setting_PasswordAuthentication,
-            optionnal_setting_CheckHostIP = optionnal_setting_CheckHostIP,
-            ssh_destination_server_port = ssh_destination_server_port,
-            server_domain_name_or_ip_addr = server_domain_name_or_ip_addr,
-            User = User,
-            commented_IdentityFile = commented_IdentityFile,
-            ssh_folder_of_user_path = ssh_folder_of_user_path,
-            dynamic_port_of_proxy = dynamic_port_of_proxy )
-# | | | |
+
 # Automatic bash script for connect into SOCKS5 (PLAYLOAD SAMPLE)
 playload_bash_file_autoSOCKS5_sh="""
 {custom_command_on_beginning_launch}
@@ -130,10 +106,10 @@ Type=simple
 Restart={setting_unrecommended_to_mods_Restart}
 RestartSec={setting_unrecommended_to_mods_RestartSec}
 User={setting_unrecommended_to_mods_User}
-ExecStart=/bin/bash {script_location_for_call_by_the_service}
+ExecStart=/bin/bash {script_location_to_be_called_by_the_service}
 [Install]
 WantedBy=multi-user.target
-""".format( script_location_for_call_by_the_service = script_location_for_call_by_the_service,
+""".format( script_location_to_be_called_by_the_service = script_location_to_be_called_by_the_service,
             service_description = service_description,
             setting_unrecommended_to_mods_StartLimitIntervalSec = setting_unrecommended_to_mods_StartLimitIntervalSec,
             setting_unrecommended_to_mods_RestartSec = setting_unrecommended_to_mods_RestartSec,
@@ -187,11 +163,11 @@ def test_target_path_and_wait_specifics_results(targeted_path, wait_exists_resul
 def check_config_number_availability(code_number,modularity_mode=False):
     testing_targets_list = []
     #
-    script_location_for_call_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+    script_location_to_be_called_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
             current_configuration_number_of_SOCKS5_host = code_number 
     )
     #
-    testing_targets_list.append(script_location_for_call_by_the_service)
+    testing_targets_list.append(script_location_to_be_called_by_the_service)
     #
     if modularity_mode:
         #
@@ -240,7 +216,7 @@ def check_config_number_availability(code_number,modularity_mode=False):
 def find_next_config_number_available(check_numbers_range=(1,1*10**6),modularity_mode=False):
     totally_used_id_numbers,partially_used_id_numbers=[],[]
     result_found = None
-    flag_of_nothing = True
+    flag_of_nothing = None
     for n in range(check_numbers_range[0],check_numbers_range[1]):
         sample_explained_results = check_config_number_availability(code_number=n,modularity_mode=modularity_mode)
         if (sample_explained_results["status"] == "available") and (sample_explained_results["amount"] == 1.0):
@@ -252,9 +228,13 @@ def find_next_config_number_available(check_numbers_range=(1,1*10**6),modularity
             flag_of_nothing = False
         if (sample_explained_results["status"] == "unavailable") and (sample_explained_results["amount"] == 0.0):
             totally_used_id_numbers.append(n)
-            flag_of_nothing = True
+            if flag_of_nothing == None: 
+                flag_of_nothing = True
     #
-    return {"free_id_number":result_found, "flag_of_nothing":flag_of_nothing, "partially_used_id_numbers":partially_used_id_numbers, "totally_used_id_numbers":totally_used_id_numbers}
+    return {"free_id_number":result_found, 
+            "flag_of_nothing":flag_of_nothing, 
+            "partially_used_id_numbers":partially_used_id_numbers, 
+            "totally_used_id_numbers":totally_used_id_numbers}
 
 #yeah that can be use for any languages ! Enjoy !
 #                                                                                 EN     FR    DE   ES            EN     FR    DE    ES 
@@ -322,10 +302,87 @@ def YesOrNoQuestion( asked_question="Confirmation{YN_default_choice}",yes_words=
     return reply
     
 
-# customisation_asks
-def customisation_asks_function():
-    if args.inject_into_existing_targets:
-        pass
+# customisation_asks steps
+results_config_id_numbers = find_next_config_number_available(modularity=args.modularity_config_mode)
+"""
+1 - found an free number if `args.inject_into_existing_targets` are disabled, else he take existing targets lists for next
+"""
+
+"""
+    1.1 - he attribute the number and call setters to inject value into data related
+    1.2 - he made the declaration of defaults value for the `DEFAULT DESTINATION OF THE PLAYLOAD INJECTION`
+    1.3 - he made declaration and injections generation(with the id_number) for `DEFAULT CONFIGURATIONS READY TO BE INJECTED INSIDE ssh_config filetype`
+"""
+
+"""
+    ##if `args.inject_into_existing_targets` are disabled
+    1.4 - he start interrogation
+
+        A.1 - Ask questions to made the custom config data to injection can be ready at the end of program
+            Questions )..:
+
+            #if `args.inject_into_existing_targets` are disabled
+            |Do you want customize the generated names of this configuration ? [N]|
+                -|  
+                1|  "short_name_Host [{short_name_Host}] (y/N) ?"
+                2|  "script_location_to_be_called_by_the_service [{script_location_to_be_called_by_the_service}] (y/N) ?"
+                3|  "ssh_addon_modules_filename [{ssh_addon_modules_filename}] (y/N) ?"
+                4|  "script_location_to_be_called_by_the_service [{script_location_to_be_called_by_the_service}] (y/N) ?"
+            |Do you want customize the default ssh configuration presets ? [Y]|
+                -|
+                1|  "User [{User}] (Y/n) ?"
+                2|  "server_domain_name_or_ip_addr [{server_domain_name_or_ip_addr}] (Y/n) ?"
+                3|  "ssh_destination_server_port [{ssh_destination_server_port}] (Y/n) ?"
+                4|  "dynamic_port_of_proxy [{dynamic_port_of_proxy}] (y/N) ?"
+                5|  "commented_IdentityFile [{commented_IdentityFile}] (Y/n) ?"
+                !|  "~~~*~~~*~~~*~~~*~~~*~~~*~~*~~~*~~~*~~~*~~~*~~~*~~~"
+                !|  "~~~*~~~*~~~*~~~*optionnal settings*~~~*~~~*~~~*~~~"
+                !|  "~~~*~~~*~~~*~~~*~~~*~~~*~~*~~~*~~~*~~~*~~~*~~~*~~~"
+                6|  "optionnal_setting_PasswordAuthentication [{optionnal_setting_PasswordAuthentication}] (y/N) ?"
+                7|  "optionnal_setting_CheckHostIP [{optionnal_setting_CheckHostIP}] (y/N) ?"
+            #if `args.modularity_config_mode` and `args.inject_into_existing_targets` are disabled
+            |Do you want customize the default playload destination ? [N]|
+                -|
+                1|  "playload_destination [{playload_destination}] (y/N) ?"
+                2|  "ssh_folder_of_user_path [{ssh_folder_of_user_path}] (y/N) ?"
+    1.5 - injection of first playload in-memory (ssh custom configuration file)
+"""
+# ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
+# Declaration and formating the playloads configuration for fast injections to the system
+# ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
+# SSH_CONFIG configuration (PLAYLOAD SAMPLE)
+playload_to_ssh_config = """
+Host {short_name_Host}
+	PasswordAuthentication {optionnal_setting_PasswordAuthentication}
+	CheckHostIP {optionnal_setting_CheckHostIP}
+	ConnectTimeout 0
+	Port {ssh_destination_server_port}
+	Hostname  {server_domain_name_or_ip_addr}
+	User {User}
+	Protocol 2
+	{commented_IdentityFile}IdentityFile {ssh_folder_of_user_path}{ssh_id_file}
+	DynamicForward {dynamic_port_of_proxy}
+	RequestTTY no
+	SessionType none
+""".format( short_name_Host=short_name_Host,
+            optionnal_setting_PasswordAuthentication = optionnal_setting_PasswordAuthentication,
+            optionnal_setting_CheckHostIP = optionnal_setting_CheckHostIP,
+            ssh_destination_server_port = ssh_destination_server_port,
+            server_domain_name_or_ip_addr = server_domain_name_or_ip_addr,
+            User = User,
+            commented_IdentityFile = commented_IdentityFile,
+            ssh_folder_of_user_path = ssh_folder_of_user_path,
+            dynamic_port_of_proxy = dynamic_port_of_proxy )
+# | | | |
+
+
+"""
+2 - if `args.inject-into-existing-targets` is enabled the search focusing on unavailable and partially
+"""
+
+
+#if args.inject_into_existing_targets:
+
 
 #inject the configuration of saved socks5 connection configuration to `/etc/ssh/ssh_config` at the end of file, writing in append mode
 
