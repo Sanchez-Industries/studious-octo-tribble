@@ -49,6 +49,12 @@ parser.add_argument("--custom-bash-on-try-connect", type=str,
                     help="In the script called by the service, set the custom bash file for the connections tries moment.")
 parser.add_argument("--custom-bash-on-disconnect", type=str,
                     help="In the script called by the service, set the custom bash file for the disconnect event moment.")
+parser.add_argument("--default-script-on-beginning-launch", action="store_true",
+                    help="Default script enable for the launch moment.")
+parser.add_argument("--default-script-on-try-connect", action="store_true",
+                    help="Default script enable for the connections tries moment.")
+parser.add_argument("--default-script-on-disconnect", action="store_true",
+                    help="Default script enable for the disconnect event moment.")
 #
 args = parser.parse_args()
 # FIX EMPTY
@@ -660,21 +666,44 @@ ParasitesConfigTool.inject()
 # initialize Studious_Playload_Injector
 ParasitesConfigTool.init()
 #
+# define defaults scripts include here
+#
+_default_script_on_disconnect="""
+notify-send 'SOCKS5 #{id_} - Disconnected'
+""".format(id_ = current_configuration_number_of_SOCKS5_host)
+#
+_default_script_on_beginning_launch="""
+notify-send 'Auto-Connect Script have start for SOCKS5 #{id_}'
+""".format(id_ = current_configuration_number_of_SOCKS5_host)
+#
+_default_script_on_try_connect="""
+notify-send 'Trie to connect made for SOCKS5 #{id_}'
+""".format(id_ = current_configuration_number_of_SOCKS5_host)
+#
 # DEFAULT BASH SCRIPT CODE OF THE FILE inside the `/opt/` folder
 if args.custom_bash_on_beginning_launch:
     custom_bash_on_beginning_launch = simpleReadFile(args.custom_bash_on_beginning_launch, True).decode()
 else:
-    custom_bash_on_beginning_launch = ""
+    if args.default_script_on_beginning_launch:
+        custom_bash_on_beginning_launch = _default_script_on_beginning_launch
+    else:
+        custom_bash_on_beginning_launch = ""
 # ~~~
 if args.custom_bash_on_try_connect:
     custom_bash_on_try_connect = simpleReadFile(args.custom_bash_on_try_connect, True).decode()
 else:
-    custom_bash_on_try_connect = ""
+    if args.default_script_on_try_connect:
+        custom_bash_on_try_connect = _default_script_on_try_connect
+    else:
+        custom_bash_on_try_connect = ""
 # ~~~
 if args.custom_bash_on_disconnect:
     custom_bash_on_disconnect = simpleReadFile(args.custom_bash_on_disconnect, True).decode()
 else:
-    custom_bash_on_disconnect = ""
+    if args.default_script_on_disconnect:
+        custom_bash_on_disconnect = _default_script_on_disconnect
+    else:
+        custom_bash_on_disconnect = ""
 # ~~~
 #
 # the same var `short_name_Host` from ssh_config settings are re-used for the connection bash script and this bash code are called by the systemd service !
