@@ -346,7 +346,51 @@ ssh_addon_modules_filename = "SOCKS5_ssh_addon_modules_n-{current_configuration_
                 1|  "short_name_Host [{short_name_Host}] (y/N) ?"
                 2|  "script_location_to_be_called_by_the_service [{script_location_to_be_called_by_the_service}] (y/N) ?"
                 3|  "ssh_addon_modules_filename [{ssh_addon_modules_filename}] (y/N) ?"
-                4|  "script_location_to_be_called_by_the_service [{script_location_to_be_called_by_the_service}] (y/N) ?"
+"""
+def ask____customize_generated_names():
+    question_list = [
+        {   
+            "var": "short_name_Host",
+            "ask": "short_name_Host [{short_name_Host}] ".format(short_name_Host=short_name_Host),
+            "YN_default_choice": "no",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "script_location_to_be_called_by_the_service",
+            "ask": "script_location_to_be_called_by_the_service [{script_location_to_be_called_by_the_service}] ".format(script_location_to_be_called_by_the_service=script_location_to_be_called_by_the_service),
+            "YN_default_choice": "no",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "ssh_addon_modules_filename",
+            "ask": "ssh_addon_modules_filename [{ssh_addon_modules_filename}] ".format(ssh_addon_modules_filename=ssh_addon_modules_filename),
+            "YN_default_choice": "no",
+            "no_input_is_default_validation": True
+        }
+    ]
+    return question_list
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+QUESTION = "Do you want customize the generated names of this configuration"
+CHOISED_WAY = YesOrNoQuestion(
+    asked_question="{QUESTION}{YN_default_choice}".format(
+        QUESTION = QUESTION,
+        YN_default_choice = "no",
+        no_input_is_default_validation = True
+        )
+    )
+if CHOISED_WAY == True:
+    question_list = ask____customize_generated_names()
+    for question_dict in question_list:
+        CHOISED_DESTINY = YesOrNoQuestion(
+            asked_question="{QUESTION}{YN_default_choice}".format(
+                QUESTION = question_dict["ask"],
+                YN_default_choice = question_dict["YN_default_choice"],
+                no_input_is_default_validation = question_dict["no_input_is_default_validation"]
+                )
+            )
+        if CHOISED_DESTINY:
+            eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
+"""
             |Do you want customize the default ssh configuration presets ? [Y]|
                 -|
                 1|  "User [{User}] (Y/n) ?"
@@ -359,11 +403,18 @@ ssh_addon_modules_filename = "SOCKS5_ssh_addon_modules_n-{current_configuration_
                 !|  "~~~*~~~*~~~*~~~*~~~*~~~*~~*~~~*~~~*~~~*~~~*~~~*~~~"
                 6|  "optionnal_setting_PasswordAuthentication [{optionnal_setting_PasswordAuthentication}] (y/N) ?"
                 7|  "optionnal_setting_CheckHostIP [{optionnal_setting_CheckHostIP}] (y/N) ?"
+"""
+
+"""
             #if `args.modularity_config_mode` and `args.inject_into_existing_targets` are disabled
             |Do you want customize the default playload destination ? [N]|
                 -|
                 1|  "playload_destination [{playload_destination}] (y/N) ?"
                 2|  "ssh_folder_of_user_path [{ssh_folder_of_user_path}] (y/N) ?"
+"""
+
+
+"""
     1.5 - injection of first playload in-memory (ssh custom configuration file)
 """
 # ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
