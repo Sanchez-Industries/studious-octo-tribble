@@ -33,12 +33,12 @@ parser.add_argument("-M","--modularity-config-mode", action="store_true",
                     help="Enable the modularity mode of configuration injection feature.")
 #
 # NOT DONE
-parser.add_argument("-0","--disable-config-writing-function", action="store_true",
-                    help="Disable all call of the final writes of the configuration.")
-parser.add_argument("-D","--dump-selected-config", action="store_true",
-                    help="Dump the selected configuration targeted to load into an buffer.")
-parser.add_argument("-B","--backup-creation-from-buffer", action="store_true",
-                    help="Create backup configurations files from data of the dumping buffer.")
+#parser.add_argument("-0","--disable-config-writing-function", action="store_true",
+#                    help="Disable all call of the final writes of the configuration.")
+#parser.add_argument("-D","--dump-selected-config", action="store_true",
+#                    help="Dump the selected configuration targeted to load into an buffer.")
+#parser.add_argument("-B","--backup-creation-from-buffer", action="store_true",
+#                    help="Create backup configurations files from data of the dumping buffer.")
 #
 # Args for customize the script called by the systemd service
 parser.add_argument("--SSH-reconnectAfterSec", type=int,
@@ -60,26 +60,7 @@ args = parser.parse_args()
 # FIX EMPTY
 if args.inject_into_target:
     args.inject_into_existing_targets = True
-
-# DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
-playload_destination = "/etc/ssh/ssh_config"
-
-# DEFAULTS COMMONS VALUES
-optionnal_setting_PasswordAuthentication = "no"
-optionnal_setting_CheckHostIP = "yes"
-ssh_destination_server_port = 22
-server_domain_name_or_ip_addr = None
-User = "root"
-commented_IdentityFile = ""
-ssh_folder_of_user_path = "~/.ssh/"
-dynamic_port_of_proxy = 4712
-
-
-
-
-
-
-
+#
 def test_target_path_existance(targeted_path, type_precision_mode=False):
     target_path = Path(targeted_path)
     if type_precision_mode:
@@ -91,7 +72,7 @@ def test_target_path_existance(targeted_path, type_precision_mode=False):
             return {"exists": False,"type": None}
     elif not type_precision_mode:
         return target_path.exists()
-
+#
 def test_target_path_and_wait_specifics_results(targeted_path, wait_exists_results = True, wait_type_results = None):
     results_of_testing = test_target_path_existance(targeted_path,True)
     if (type(wait_exists_results) != bool) or (type(wait_exists_results) != int):
@@ -112,7 +93,7 @@ def test_target_path_and_wait_specifics_results(targeted_path, wait_exists_resul
         elif not wait_exists_results:
             # wait the no-exists confirmation from the testing function
             return results_of_testing["exists"] == False
-
+#
 def check_config_number_availability(code_number,modularity_mode=False):
     testing_targets_list = []
     #
@@ -165,7 +146,7 @@ def check_config_number_availability(code_number,modularity_mode=False):
                     "module_files_mode": modularity_mode,
                     "number_config_id": code_number
                 }
-
+#
 def find_next_config_number_available(check_numbers_range=(1,1*10**6),modularity_mode=False):
     totally_used_id_numbers,partially_used_id_numbers=[],[]
     result_found = None
@@ -188,13 +169,12 @@ def find_next_config_number_available(check_numbers_range=(1,1*10**6),modularity
             "flag_of_nothing":flag_of_nothing, 
             "partially_used_id_numbers":partially_used_id_numbers, 
             "totally_used_id_numbers":totally_used_id_numbers}
-
-#yeah that can be use for any languages ! Enjoy !
+#
 #                                                                                 EN     FR    DE   ES            EN     FR    DE    ES 
 def YesOrNoQuestion( asked_question="Confirmation{YN_default_choice}",yes_words=["yes","oui","ja","sí"],no_words=["no","non","nein","no"],
                      YN_default_choice="yes", ask_loop_if_unknow_reply=True, case_sensitive=False, selected_index_reply_lists=None,
                      no_input_is_default_validation=True, upper_case_forced_wanted_reply = False, full_type_forced_wanted_reply = False
-                   ):
+                   ): # Yeah that can be use for any languages ! Enjoy !
     O_YN_default_choice = deepcopy(YN_default_choice)
     yes_char, no_char = O_YN_default_choice[0], no_words[yes_words.index(O_YN_default_choice)][0]
     while True:
@@ -338,18 +318,15 @@ def OpenMenuListOfExistsOverwriteTarget(self,existsList,modularity_mode=False):
             if int(op_val.replace("w","")) in existsList:
                 system('clear')
                 return int(op_val.replace("w",""))
-
-
-
-
-
-
-
-
-
-
-
-
+#
+#
+#
+#
+#
+#
+#
+#
+#
 # customisation_asks steps
 """
 1 - found an free number if `args.inject_into_existing_targets` are disabled, else he take existing targets lists for next
@@ -379,8 +356,18 @@ if args.inject_into_existing_targets:
     else:
         current_configuration_number_of_SOCKS5_host = OpenMenuListOfExistsOverwriteTarget(existsList=results_config_id_numbers,modularity_mode=args.modularity_config_mode)
 """
-    1.2 - he made the declaration of defaults value for the `DEFAULT DESTINATION OF THE PLAYLOAD INJECTION`
+    1.2 - he made the declaration of defaults value for the `DEFAULT DESTINATION OF THE PLAYLOAD INJECTION` and `DEFAULTS COMMONS VALUES`
 """
+# DEFAULTS COMMONS VALUES
+playload_destination = "/etc/ssh/ssh_config" # DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
+optionnal_setting_PasswordAuthentication = "no"
+optionnal_setting_CheckHostIP = "yes"
+ssh_destination_server_port = 22
+server_domain_name_or_ip_addr = None
+User = "root"
+commented_IdentityFile = ""
+ssh_folder_of_user_path = "~/.ssh/"
+dynamic_port_of_proxy = 4712
 # DEFAULT CONFIGURATIONS READY TO BE INJECTED INSIDE `/etc/ssh/ssh_config` FILE
 short_name_Host = "socks5-n{current_configuration_number_of_SOCKS5_host}".format(
             current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
