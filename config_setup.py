@@ -73,41 +73,7 @@ dynamic_port_of_proxy = 4712
 
 
 
-#   =================
-# =====================(RECOMMENDED: DO NOT CHANGE)
-# OTHER SPECIFICS CONFIGURATIONS LINES ARGS (RECOMMENDED: DO NOT CHANGE)
-setting_unrecommended_to_mods_StartLimitIntervalSec = 0
-setting_unrecommended_to_mods_RestartSec = 1
-setting_unrecommended_to_mods_User = "root"
-setting_unrecommended_to_mods_Restart = "always"
-name_of_addons_modules_folder = "SOCKS5"
-name_of_modular_configurations_folder = "ssh_config.d"
-# =====================(RECOMMENDED: DO NOT CHANGE)
 
-
-
-# Configuration of the systemd service (PLAYLOAD SAMPLE)
-automatic_socks5_connection_systemd_service = """
-[Unit]
-Description={service_description}
-After=network.target
-StartLimitIntervalSec= {setting_unrecommended_to_mods_StartLimitIntervalSec}
-
-[Service]
-Type=simple
-Restart={setting_unrecommended_to_mods_Restart}
-RestartSec={setting_unrecommended_to_mods_RestartSec}
-User={setting_unrecommended_to_mods_User}
-ExecStart=/bin/bash {script_location_to_be_called_by_the_service}
-[Install]
-WantedBy=multi-user.target
-""".format( script_location_to_be_called_by_the_service = script_location_to_be_called_by_the_service,
-            service_description = service_description,
-            setting_unrecommended_to_mods_StartLimitIntervalSec = setting_unrecommended_to_mods_StartLimitIntervalSec,
-            setting_unrecommended_to_mods_RestartSec = setting_unrecommended_to_mods_RestartSec,
-            setting_unrecommended_to_mods_User = setting_unrecommended_to_mods_User,
-            setting_unrecommended_to_mods_Restart = setting_unrecommended_to_mods_Restart )
-# | | | |
 
 
 def test_target_path_existance(targeted_path, type_precision_mode=False):
@@ -647,6 +613,8 @@ ParasitesConfigTool = PlayloadInjector()
     1.7 - settings injections to support the `modularity_mode`
 """
 if args.modularity_config_mode:
+    name_of_addons_modules_folder = "SOCKS5"
+    name_of_modular_configurations_folder = "ssh_config.d"
     modularity_mode_folder_path = "/etc/ssh/{name_of_modular_configurations_folder}/{name_of_addons_modules_folder}".format(
                 name_of_addons_modules_folder = name_of_addons_modules_folder,
                 name_of_modular_configurations_folder = name_of_modular_configurations_folder
@@ -752,8 +720,66 @@ ParasitesConfigTool.inject()
 # initialize Studious_Playload_Injector
 ParasitesConfigTool.init()
 #
+#   =================
+# =====================(RECOMMENDED: DO NOT CHANGE)
+# OTHER SPECIFICS CONFIGURATIONS LINES ARGS (RECOMMENDED: DO NOT CHANGE)
+setting_unrecommended_to_mods_StartLimitIntervalSec = 0
+setting_unrecommended_to_mods_RestartSec = 1
+setting_unrecommended_to_mods_User = "root"
+setting_unrecommended_to_mods_Restart = "always"
+##name_of_addons_modules_folder = "SOCKS5"
+##name_of_modular_configurations_folder = "ssh_config.d"
+# =====================(RECOMMENDED: DO NOT CHANGE)
+#
+# Configuration of the systemd service (PLAYLOAD SAMPLE)
+automatic_socks5_connection_systemd_service = """
+[Unit]
+Description={service_description}
+After=network.target
+StartLimitIntervalSec= {setting_unrecommended_to_mods_StartLimitIntervalSec}
 
+[Service]
+Type=simple
+Restart={setting_unrecommended_to_mods_Restart}
+RestartSec={setting_unrecommended_to_mods_RestartSec}
+User={setting_unrecommended_to_mods_User}
+ExecStart=/bin/bash {script_location_to_be_called_by_the_service}
+[Install]
+WantedBy=multi-user.target
+""".format( script_location_to_be_called_by_the_service = script_location_to_be_called_by_the_service,
+            service_description = "{} - #{}".format(
+                service_description, 
+                current_configuration_number_of_SOCKS5_host
+            ),
+            setting_unrecommended_to_mods_StartLimitIntervalSec = setting_unrecommended_to_mods_StartLimitIntervalSec,
+            setting_unrecommended_to_mods_RestartSec = setting_unrecommended_to_mods_RestartSec,
+            setting_unrecommended_to_mods_User = setting_unrecommended_to_mods_User,
+            setting_unrecommended_to_mods_Restart = setting_unrecommended_to_mods_Restart )
+# | | | |
+service_name = "autoSOCKS5-{id_conf}.service".format(
+        id_conf=current_configuration_number_of_SOCKS5_host
+    )
+ParasitesConfigTool.setDestinationOfInjection("/etc/systemd/system/{service_name}".format(
+        service_name=service_name
+    )
+)
+ParasitesConfigTool.setPlayloadToInjection(automatic_socks5_connection_systemd_service)
+ParasitesConfigTool.inject()
+# ~~~ file of service for systemd - INJECTING DONE ~~~
+#
 
+# ~~~
+system("sudo chmod +x {script_path}".format(
+        script_path = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+                current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
+        )
+    )
+)
+system("sudo systemctl enable --now {service_name}".format(
+        service_name=service_name
+    )
+)
+# ~~~ SOCKS5 SERVICE. DEPLOY DONE ~~~
 """
 2 - if `args.inject-into-existing-targets` is enabled the search focusing on unavailable and partially
 """
