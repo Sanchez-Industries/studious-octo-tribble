@@ -278,12 +278,91 @@ def YesOrNoQuestion( asked_question="Confirmation{YN_default_choice}",yes_words=
                 reply = None 
                 break
     return reply
-    
-
-
-
-
-
+#
+# MENU (OVERWRITE TARGET SELECTION)
+def OpenMenuListOfExistsOverwriteTarget(self,existsList,modularity_mode=False):
+    infos_exists = {}
+    for code_number in existsList:
+        testing_targets_list = []
+        #
+        script_location_to_be_called_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+                current_configuration_number_of_SOCKS5_host = code_number 
+        )
+        #
+        testing_targets_list.append(script_location_to_be_called_by_the_service)
+        #
+        ssh_addon_modules_filename,modularity_mode_folder_path,checking_destination_filepath = None,None,None
+        if modularity_mode:
+            #
+            ssh_addon_modules_filename = "SOCKS5_ssh_addon_modules_n-{current_configuration_number_of_SOCKS5_host}.conf".format(
+                    current_configuration_number_of_SOCKS5_host = code_number 
+            )
+            #
+            modularity_mode_folder_path = "/etc/ssh/{name_of_modular_configurations_folder}/{name_of_addons_modules_folder}".format(
+                    name_of_addons_modules_folder = name_of_addons_modules_folder,
+                    name_of_modular_configurations_folder = name_of_modular_configurations_folder
+            )
+            #
+            checking_destination_filepath = "{modularity_mode_folder_path}/{ssh_addon_modules_filename}".format(
+                    modularity_mode_folder_path = modularity_mode_folder_path,
+                    ssh_addon_modules_filename = ssh_addon_modules_filename
+            )
+            #
+            testing_targets_list.append(checking_destination_filepath)
+        elif not modularity_mode:
+            testing_targets_list.append(playload_destination)
+        #
+        infos_exists[code_number] = [
+            {
+                "whatis": "script called by the service",
+                "value": "{script_location_to_be_called_by_the_service}"
+            },
+            {
+                "whatis": "addon module filename",
+                "value": "{ssh_addon_modules_filename}"
+            },
+            {
+                "whatis": "modules folder path",
+                "value": "{modularity_mode_folder_path}"
+            },
+            {
+                "whatis": "module file absolute path",
+                "value": "{checking_destination_filepath}"
+            }
+        ]
+    #
+    while True:
+        print("Type the number of selection. Type an 'i' after the id to get informations about the specified configuration.")
+        print("                              Type an 'w' after the id to overwrite the specified configuration.")
+        print("                              Type an 'a' to abandonnate and exit.\n")
+        for code_number in existsList:
+            print("({code_number}) - SSH SOCKS5 CONFIGURATION #{code_number}".format(
+                code_number = code_number
+            ))
+        op_val = input(":")
+        if 'a' in op_val:
+            system('clear')
+            exit(0)
+        elif 'i' in op_val:
+            if int(op_val.replace("i","")) in existsList:
+                id_target = int(op_val.replace("i",""))
+                print("""MORE INFORMATIONS:
+                    Configuration #{id_}
+                    ---""".format(
+                        id_=id_target
+                    ))
+                for info in infos_exists[id_target]:
+                    print("""
+                    {subject}: {value}""".format(
+                        subject = info["whatis"],
+                        value = info["value"]
+                    ))
+                system('read -s -n 1 -p "Press any key to continue..."')
+                system('clear')
+        elif 'w' in op_val:
+            if int(op_val.replace("w","")) in existsList:
+                system('clear')
+                return int(op_val.replace("w",""))
 
 
 
@@ -318,9 +397,9 @@ if not args.inject_into_existing_targets:
     else:
         results_config_id_numbers = results_config_id_numbers["free_id_number"] # focused on available number
         current_configuration_number_of_SOCKS5_host = results_config_id_numbers
-else:
+if args.inject_into_existing_targets:
     results_config_id_numbers = results_config_id_numbers["totally_used_id_numbers"] # focused on already used numbers
-    current_configuration_number_of_SOCKS5_host = None
+    current_configuration_number_of_SOCKS5_host = OpenMenuListOfExistsOverwriteTarget(existsList=results_config_id_numbers,modularity_mode=args.modularity_config_mode)
 """
     1.2 - he made the declaration of defaults value for the `DEFAULT DESTINATION OF THE PLAYLOAD INJECTION`
 """
@@ -647,9 +726,24 @@ done
             restartAfterSec = restartAfterSec
           )
 # | | | |
-
+"""
+    2.3 - inject the custom bash script of the service
+"""
+ParasitesConfigTool.setDestinationOfInjection(
+    "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
+    )
+)
+ParasitesConfigTool.setPlayloadToInjection(playload_bash_file_autoSOCKS5_sh)
+ParasitesConfigTool.inject()
 # ~~~ bash_file - INJECTING DONE ~~~
-
+"""
+    2.2 - generate the custom systemd service
+"""
+#
+# initialize Studious_Playload_Injector
+ParasitesConfigTool.init()
+#
 
 
 """
