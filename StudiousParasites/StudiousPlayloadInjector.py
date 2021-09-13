@@ -9,6 +9,9 @@ class Studious_Playload_Injector(object):
         self.destination_filepath = None
         self.loaded_playload = None
         #
+    def init(self):
+        self.destination_filepath = None
+        self.loaded_playload = None
     def setDestinationOfInjection(self, destined_filepath):
         self.destination_filepath = destined_filepath
         #

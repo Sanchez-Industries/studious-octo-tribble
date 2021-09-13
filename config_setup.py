@@ -1,33 +1,61 @@
 #!/usr/bin/python3
 #coding: utf-8
-
+#
+# very low begin...
+def simpleReadFile(filepath,bin_mode=True):
+    with open(
+        filepath,
+        '{modeFileAccess}'.format(
+            modeFileAccess = ['rb' if i==True else 'r' for i in [bin_mode]] 
+            )
+        ) as f:
+        # ===
+        data = f.read()
+        f.close()
+    return data
+#
 # LIBRARY'S IMPORTATION
 from os import system 
 from StudiousParasites.StudiousPlayloadInjector import Studious_Playload_Injector as PlayloadInjector
 import argparse
 from pathlib import Path
 from copy import deepcopy
-
+#
 # args Parsing of the command line tool
 parser = argparse.ArgumentParser()
+#
+# Args to set usages modes
 parser.add_argument("-f","--force", action="store_true",
-                    help="forcing and bypass all conditionnal lock of the guided configuration.")
+                    help="Forcing and bypass all conditionnal lock of the guided configuration.")
 parser.add_argument("-I","--inject-into-existing-targets", action="store_true",
-                    help="enable the (to an configuration file already existing) target selection feature.")
+                    help="Enable the (to an configuration file already existing) target selection feature.")
 parser.add_argument("-M","--modularity-config-mode", action="store_true",
-                    help="enable the modularity mode of configuration injection feature.")
+                    help="Enable the modularity mode of configuration injection feature.")
+#
+# NOT DONE
 parser.add_argument("-0","--disable-config-writing-function", action="store_true",
-                    help="disable all call of the final writes of the configuration.")
+                    help="Disable all call of the final writes of the configuration.")
 parser.add_argument("-D","--dump-selected-config", action="store_true",
-                    help="dump the selected configuration targeted to load into an buffer.")
+                    help="Dump the selected configuration targeted to load into an buffer.")
 parser.add_argument("-B","--backup-creation-from-buffer", action="store_true",
-                    help="create backup configurations files from data of the dumping buffer.")
+                    help="Create backup configurations files from data of the dumping buffer.")
+#
+# Args for customize the script called by the systemd service
+parser.add_argument("--SSH-reconnectAfterSec", type=int,
+                    help="In the script called by the service, set the delay to restart after sec.")
+parser.add_argument("--custom-bash-on-beginning-launch", type=str,
+                    help="In the script called by the service, set the custom bash file for the launch moment.")
+parser.add_argument("--custom-bash-on-try-connect", type=str,
+                    help="In the script called by the service, set the custom bash file for the connections tries moment.")
+parser.add_argument("--custom-bash-on-disconnect", type=str,
+                    help="In the script called by the service, set the custom bash file for the disconnect event moment.")
+#
 args = parser.parse_args()
 
 # DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
 playload_destination = "/etc/ssh/ssh_config"
 
-
+# DEFAULTS COMMONS VALUES
 optionnal_setting_PasswordAuthentication = "no"
 optionnal_setting_CheckHostIP = "yes"
 ssh_destination_server_port = 22
@@ -37,12 +65,7 @@ commented_IdentityFile = ""
 ssh_folder_of_user_path = "~/.ssh/"
 dynamic_port_of_proxy = 4712
 
-# DEFAULT BASH SCRIPT CODE OF THE FILE inside the `/opt/` folder
-custom_command_on_beginning_launch = ""
-custom_command_on_try_connect = ""
-custom_command_on_disconnect = ""
-# the same var `short_name_Host` from ssh_config settings are re-used for the connection bash script and this bash code are called by the systemd service !
-restartAfterSec = 60
+
 
 
 #   =================
@@ -58,30 +81,6 @@ name_of_modular_configurations_folder = "ssh_config.d"
 
 
 
-# little some injections ...
-modularity_mode_folder_path = "/etc/ssh/{name_of_modular_configurations_folder}/{name_of_addons_modules_folder}".format(
-            name_of_addons_modules_folder = name_of_addons_modules_folder,
-            name_of_modular_configurations_folder = name_of_modular_configurations_folder
-    )
-
-
-# Automatic bash script for connect into SOCKS5 (PLAYLOAD SAMPLE)
-playload_bash_file_autoSOCKS5_sh="""
-{custom_command_on_beginning_launch}
-while :
-do
-    {custom_command_on_try_connect}
-    /usr/bin/ssh {short_name_Host}
-    {custom_command_on_disconnect}
-    sleep {restartAfterSec}
-done
-""".format( custom_command_on_beginning_launch = custom_command_on_beginning_launch,
-            custom_command_on_try_connect = custom_command_on_try_connect,
-            custom_command_on_disconnect = custom_command_on_disconnect,
-            short_name_Host = short_name_Host,
-            restartAfterSec = restartAfterSec
-          )
-# | | | |
 # Configuration of the systemd service (PLAYLOAD SAMPLE)
 automatic_socks5_connection_systemd_service = """
 [Unit]
@@ -104,16 +103,7 @@ WantedBy=multi-user.target
             setting_unrecommended_to_mods_User = setting_unrecommended_to_mods_User,
             setting_unrecommended_to_mods_Restart = setting_unrecommended_to_mods_Restart )
 # | | | |
-# script for preparation of an new config file in an better way and more... terribly modular !! (PLAYLOAD SAMPLE)
-modularity_mode_of_configuration_injection = """
-sudo mkdir -p {modularity_mode_folder_path}
-# line with grep and I don't know to reconfigure or add the missing include call of modules inside `/etc/ssh/ssh_config.d/`
-sudo touch {modularity_mode_folder_path}/{ssh_addon_modules_filename}
-""".format(
-            ssh_addon_modules_filename = ssh_addon_modules_filename,
-            name_of_modular_configurations_folder = name_of_modular_configurations_folder,
-            modularity_mode_folder_path = modularity_mode_folder_path
-          )
+
 
 def test_target_path_existance(targeted_path, type_precision_mode=False):
     target_path = Path(targeted_path)
@@ -289,6 +279,22 @@ def YesOrNoQuestion( asked_question="Confirmation{YN_default_choice}",yes_words=
                 break
     return reply
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # customisation_asks steps
 """
@@ -545,18 +551,107 @@ Host {short_name_Host}
             ssh_folder_of_user_path = ssh_folder_of_user_path,
             dynamic_port_of_proxy = dynamic_port_of_proxy )
 # | | | |
+"""
+    1.6 - Made an `PlayloadInjector` object
+"""
+# Creation of the Object for Playload Injections from `studious-octo-tribble/StudiousParasites/StudiousPlayloadInjector.py`
+ParasitesConfigTool = PlayloadInjector()
+"""
+    1.7 - settings injections to support the `modularity_mode`
+"""
+if args.modularity_config_mode:
+    modularity_mode_folder_path = "/etc/ssh/{name_of_modular_configurations_folder}/{name_of_addons_modules_folder}".format(
+                name_of_addons_modules_folder = name_of_addons_modules_folder,
+                name_of_modular_configurations_folder = name_of_modular_configurations_folder
+        )
+    """
+    1.7.1 - injection in scripts to support the `modularity_mode`
+    """
+    # script for preparation of an new config file in an better way and more... terribly modular !! (PLAYLOAD SAMPLE)
+    modularity_mode_of_configuration_injection = """
+    sudo mkdir -p {modularity_mode_folder_path}
+    # line with grep and I don't know to reconfigure or add the missing include call of modules inside `/etc/ssh/ssh_config.d/`
+    sudo touch {modularity_mode_folder_path}/{ssh_addon_modules_filename}
+    """.format(
+                ssh_addon_modules_filename = ssh_addon_modules_filename,
+                name_of_modular_configurations_folder = name_of_modular_configurations_folder,
+                modularity_mode_folder_path = modularity_mode_folder_path
+            )
+    """
+        2.1 - write the ssh_config file
+    """
+    ParasitesConfigTool.setDestinationOfInjection("{modularity_mode_folder_path}/{ssh_addon_modules_filename}".format(
+        modularity_mode_folder_path = modularity_mode_folder_path,
+        ssh_addon_modules_filename = ssh_addon_modules_filename
+    ))
+
+elif not args.modularity_config_mode:
+    """
+        1.8 - to support the legacy config mode
+    """
+    """
+        2.1 - write the ssh_config file
+    """
+    ParasitesConfigTool.setDestinationOfInjection(playload_destination)
+
+"""
+    2.1 - write the ssh_config file
+"""
+ParasitesConfigTool.setPlayloadToInjection(playload_to_ssh_config)
+ParasitesConfigTool.inject()
+# ~~~ ssh_config - INJECTING DONE ~~~
+"""
+    2.2 - generate the custom bash script of the service
+"""
+#
+# initialize Studious_Playload_Injector
+ParasitesConfigTool.init()
+#
+# DEFAULT BASH SCRIPT CODE OF THE FILE inside the `/opt/` folder
+if args.custom_bash_on_beginning_launch:
+    custom_bash_on_beginning_launch = simpleReadFile(args.custom_bash_on_beginning_launch, True).decode()
+else:
+    custom_bash_on_beginning_launch = ""
+# ~~~
+if args.custom_bash_on_try_connect:
+    custom_bash_on_try_connect = simpleReadFile(args.custom_bash_on_try_connect, True).decode()
+else:
+    custom_bash_on_try_connect = ""
+# ~~~
+if args.custom_bash_on_disconnect:
+    custom_bash_on_disconnect = simpleReadFile(args.custom_bash_on_disconnect, True).decode()
+else:
+    custom_bash_on_disconnect = ""
+# ~~~
+#
+# the same var `short_name_Host` from ssh_config settings are re-used for the connection bash script and this bash code are called by the systemd service !
+if args.SSH_reconnectAfterSec:
+    restartAfterSec = args.SSH_reconnectAfterSec
+else:
+    restartAfterSec = 60
+#
+# Automatic bash script for connect into SOCKS5 (PLAYLOAD SAMPLE)
+playload_bash_file_autoSOCKS5_sh="""
+{custom_bash_on_beginning_launch}
+while :
+do
+    {custom_bash_on_try_connect}
+    /usr/bin/ssh {short_name_Host}
+    {custom_bash_on_disconnect}
+    sleep {restartAfterSec}
+done
+""".format( custom_bash_on_beginning_launch = custom_bash_on_beginning_launch,
+            custom_bash_on_try_connect = custom_bash_on_try_connect,
+            custom_bash_on_disconnect = custom_bash_on_disconnect,
+            short_name_Host = short_name_Host,
+            restartAfterSec = restartAfterSec
+          )
+# | | | |
+
+# ~~~ bash_file - INJECTING DONE ~~~
+
 
 
 """
 2 - if `args.inject-into-existing-targets` is enabled the search focusing on unavailable and partially
 """
-
-
-#if args.inject_into_existing_targets:
-
-
-#inject the configuration of saved socks5 connection configuration to `/etc/ssh/ssh_config` at the end of file, writing in append mode
-
-
-# Creation of the Object for Playload Injections from `studious-octo-tribble/StudiousParasites/StudiousPlayloadInjector.py`
-ParasitesConfigTool = PlayloadInjector()
