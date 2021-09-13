@@ -29,6 +29,8 @@ parser.add_argument("-f","--force", action="store_true",
                     help="Forcing and bypass all conditionnal lock of the guided configuration.")
 parser.add_argument("-I","--inject-into-existing-targets", action="store_true",
                     help="Enable the (to an configuration file already existing) target selection feature.")
+parser.add_argument("-In","--inject-into-target", type=int,
+                    help="Set the selected target, without use the menu of selection feature.")
 parser.add_argument("-M","--modularity-config-mode", action="store_true",
                     help="Enable the modularity mode of configuration injection feature.")
 #
@@ -51,6 +53,9 @@ parser.add_argument("--custom-bash-on-disconnect", type=str,
                     help="In the script called by the service, set the custom bash file for the disconnect event moment.")
 #
 args = parser.parse_args()
+# FIX EMPTY
+if args.inject_into_target:
+    args.inject_into_existing_targets = True
 
 # DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
 playload_destination = "/etc/ssh/ssh_config"
@@ -399,7 +404,10 @@ if not args.inject_into_existing_targets:
         current_configuration_number_of_SOCKS5_host = results_config_id_numbers
 if args.inject_into_existing_targets:
     results_config_id_numbers = results_config_id_numbers["totally_used_id_numbers"] # focused on already used numbers
-    current_configuration_number_of_SOCKS5_host = OpenMenuListOfExistsOverwriteTarget(existsList=results_config_id_numbers,modularity_mode=args.modularity_config_mode)
+    if args.inject_into_target:    
+        current_configuration_number_of_SOCKS5_host = int(args.inject_into_target)
+    else:
+        current_configuration_number_of_SOCKS5_host = OpenMenuListOfExistsOverwriteTarget(existsList=results_config_id_numbers,modularity_mode=args.modularity_config_mode)
 """
     1.2 - he made the declaration of defaults value for the `DEFAULT DESTINATION OF THE PLAYLOAD INJECTION`
 """
