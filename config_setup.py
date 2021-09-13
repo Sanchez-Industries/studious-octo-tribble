@@ -27,10 +27,7 @@ args = parser.parse_args()
 # DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
 playload_destination = "/etc/ssh/ssh_config"
 
-# DEFAULT CONFIGURATIONS READY TO BE INJECTED INSIDE `/etc/ssh/ssh_config` FILE
-short_name_Host = "socks5-n{current_configuration_number_of_SOCKS5_host}".format(
-            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
-    )
+
 optionnal_setting_PasswordAuthentication = "no"
 optionnal_setting_CheckHostIP = "yes"
 ssh_destination_server_port = 22
@@ -47,16 +44,7 @@ custom_command_on_disconnect = ""
 # the same var `short_name_Host` from ssh_config settings are re-used for the connection bash script and this bash code are called by the systemd service !
 restartAfterSec = 60
 
-# SYSTEMD PLAYLOAD TO SET THE SERVICE CONFIGURED INTO THE SYSTEM
-service_description = "automatic SOCKS5 ssh reconnection"
-current_configuration_number_of_SOCKS5_host = 1
-script_location_to_be_called_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
-            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
-    )
-# ???~~~???~~~???
-ssh_addon_modules_filename = "SOCKS5_ssh_addon_modules_n-{current_configuration_number_of_SOCKS5_host}.conf".format(
-            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
-    )
+
 #   =================
 # =====================(RECOMMENDED: DO NOT CHANGE)
 # OTHER SPECIFICS CONFIGURATIONS LINES ARGS (RECOMMENDED: DO NOT CHANGE)
@@ -303,17 +291,48 @@ def YesOrNoQuestion( asked_question="Confirmation{YN_default_choice}",yes_words=
     
 
 # customisation_asks steps
-results_config_id_numbers = find_next_config_number_available(modularity=args.modularity_config_mode)
 """
 1 - found an free number if `args.inject_into_existing_targets` are disabled, else he take existing targets lists for next
 """
-
+results_config_id_numbers = find_next_config_number_available(modularity=args.modularity_config_mode)
+#results_config_id_numbers
+# free_id_number
+# flag_of_nothing
+# partially_used_id_numbers
+# totally_used_id_numbers
 """
     1.1 - he attribute the number and call setters to inject value into data related
+"""
+service_description = "automatic SOCKS5 ssh reconnection"
+current_configuration_number_of_SOCKS5_host = 1
+if not args.inject_into_existing_targets:
+    if results_config_id_numbers["flag_of_nothing"] == True:
+        print("ERROR: ZERO ID NUMBER ARE AVAILABLE !")
+        exit(-1)
+    else:
+        results_config_id_numbers = results_config_id_numbers["free_id_number"] # focused on available number
+        current_configuration_number_of_SOCKS5_host = results_config_id_numbers
+else:
+    results_config_id_numbers = results_config_id_numbers["totally_used_id_numbers"] # focused on already used numbers
+    current_configuration_number_of_SOCKS5_host = None
+"""
     1.2 - he made the declaration of defaults value for the `DEFAULT DESTINATION OF THE PLAYLOAD INJECTION`
+"""
+# DEFAULT CONFIGURATIONS READY TO BE INJECTED INSIDE `/etc/ssh/ssh_config` FILE
+short_name_Host = "socks5-n{current_configuration_number_of_SOCKS5_host}".format(
+            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
+    )
+"""
     1.3 - he made declaration and injections generation(with the id_number) for `DEFAULT CONFIGURATIONS READY TO BE INJECTED INSIDE ssh_config filetype`
 """
-
+# SYSTEMD PLAYLOAD TO SET THE SERVICE CONFIGURED INTO THE SYSTEM
+script_location_to_be_called_by_the_service = "/opt/auto-connect-SOCKS5-number_{current_configuration_number_of_SOCKS5_host}.sh".format(
+            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
+    )
+# ???~~~???~~~???
+ssh_addon_modules_filename = "SOCKS5_ssh_addon_modules_n-{current_configuration_number_of_SOCKS5_host}.conf".format(
+            current_configuration_number_of_SOCKS5_host = current_configuration_number_of_SOCKS5_host 
+    )
 """
     ##if `args.inject_into_existing_targets` are disabled
     1.4 - he start interrogation
