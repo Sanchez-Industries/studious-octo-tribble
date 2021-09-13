@@ -1,5 +1,7 @@
 # STUDIOUS-OCTO-TRIBBLE (NOT DONE)
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7053505dd4bb49658414a955eddda33c)](https://app.codacy.com/gh/Sanchez-Industries/studious-octo-tribble?utm_source=github.com&utm_medium=referral&utm_content=Sanchez-Industries/studious-octo-tribble&utm_campaign=Badge_Grade_Settings)
+
 (Only for Linux, designed for Arch-Based, you want that fine for debian-based?... go fork right now!)
 
 ***This tool can:***
