@@ -404,7 +404,73 @@ if CHOISED_WAY == True:
                 6|  "optionnal_setting_PasswordAuthentication [{optionnal_setting_PasswordAuthentication}] (y/N) ?"
                 7|  "optionnal_setting_CheckHostIP [{optionnal_setting_CheckHostIP}] (y/N) ?"
 """
-
+def ask____customize_configuration_presets():
+    question_list = [
+        {   
+            "var": "User",
+            "ask": "User [{User}] ".format(User=User),
+            "YN_default_choice": "yes",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "server_domain_name_or_ip_addr",
+            "ask": "server_domain_name_or_ip_addr [{server_domain_name_or_ip_addr}] ".format(server_domain_name_or_ip_addr=server_domain_name_or_ip_addr),
+            "YN_default_choice": "yes",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "ssh_destination_server_port",
+            "ask": "ssh_destination_server_port [{ssh_destination_server_port}] ".format(ssh_destination_server_port=ssh_destination_server_port),
+            "YN_default_choice": "yes",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "dynamic_port_of_proxy",
+            "ask": "dynamic_port_of_proxy [{dynamic_port_of_proxy}] ".format(dynamic_port_of_proxy=dynamic_port_of_proxy),
+            "YN_default_choice": "no",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "commented_IdentityFile",
+            "ask": "commented_IdentityFile [{commented_IdentityFile}] ".format(commented_IdentityFile=commented_IdentityFile),
+            "YN_default_choice": "yes",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "optionnal_setting_PasswordAuthentication",
+            "ask": "optionnal_setting_PasswordAuthentication [{optionnal_setting_PasswordAuthentication}] ".format(optionnal_setting_PasswordAuthentication=optionnal_setting_PasswordAuthentication),
+            "YN_default_choice": "no",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "optionnal_setting_CheckHostIP",
+            "ask": "optionnal_setting_CheckHostIP [{optionnal_setting_CheckHostIP}] ".format(optionnal_setting_CheckHostIP=optionnal_setting_CheckHostIP),
+            "YN_default_choice": "no",
+            "no_input_is_default_validation": True
+        }
+    ]
+    return question_list
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+QUESTION = "Do you want customize the default ssh configuration presets"
+CHOISED_WAY = YesOrNoQuestion(
+    asked_question="{QUESTION}{YN_default_choice}".format(
+        QUESTION = QUESTION,
+        YN_default_choice = "yes",
+        no_input_is_default_validation = True
+        )
+    )
+if CHOISED_WAY == True:
+    question_list = ask____customize_configuration_presets()
+    for question_dict in question_list:
+        CHOISED_DESTINY = YesOrNoQuestion(
+            asked_question="{QUESTION}{YN_default_choice}".format(
+                QUESTION = question_dict["ask"],
+                YN_default_choice = question_dict["YN_default_choice"],
+                no_input_is_default_validation = question_dict["no_input_is_default_validation"]
+                )
+            )
+        if CHOISED_DESTINY:
+            eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
 """
             #if `args.modularity_config_mode` and `args.inject_into_existing_targets` are disabled
             |Do you want customize the default playload destination ? [N]|
@@ -412,8 +478,43 @@ if CHOISED_WAY == True:
                 1|  "playload_destination [{playload_destination}] (y/N) ?"
                 2|  "ssh_folder_of_user_path [{ssh_folder_of_user_path}] (y/N) ?"
 """
-
-
+def ask____customize_playload_destination():
+    question_list = [
+        {   
+            "var": "playload_destination",
+            "ask": "playload_destination [{playload_destination}] ".format(playload_destination=playload_destination),
+            "YN_default_choice": "no",
+            "no_input_is_default_validation": True
+        },
+        {
+            "var": "ssh_folder_of_user_path",
+            "ask": "ssh_folder_of_user_path [{ssh_folder_of_user_path}] ".format(ssh_folder_of_user_path=ssh_folder_of_user_path),
+            "YN_default_choice": "no",
+            "no_input_is_default_validation": True
+        }
+    ]
+    return question_list
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+QUESTION = "Do you want customize the default playload destination"
+CHOISED_WAY = YesOrNoQuestion(
+    asked_question="{QUESTION}{YN_default_choice}".format(
+        QUESTION = QUESTION,
+        YN_default_choice = "no",
+        no_input_is_default_validation = True
+        )
+    )
+if CHOISED_WAY == True:
+    question_list = ask____customize_playload_destination()
+    for question_dict in question_list:
+        CHOISED_DESTINY = YesOrNoQuestion(
+            asked_question="{QUESTION}{YN_default_choice}".format(
+                QUESTION = question_dict["ask"],
+                YN_default_choice = question_dict["YN_default_choice"],
+                no_input_is_default_validation = question_dict["no_input_is_default_validation"]
+                )
+            )
+        if CHOISED_DESTINY:
+            eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
 """
     1.5 - injection of first playload in-memory (ssh custom configuration file)
 """
