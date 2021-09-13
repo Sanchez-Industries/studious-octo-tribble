@@ -180,8 +180,16 @@ def YesOrNoQuestion( asked_question="Confirmation{YN_default_choice}",yes_words=
                      YN_default_choice="yes", ask_loop_if_unknow_reply=True, case_sensitive=False, selected_index_reply_lists=None,
                      no_input_is_default_validation=True, upper_case_forced_wanted_reply = False, full_type_forced_wanted_reply = False
                    ): # Yeah that can be use for any languages ! Enjoy !
+    #
+    if "{YN_default_choice}" not in asked_question:
+        asked_question = asked_question + "{YN_default_choice}"
+    #
     O_YN_default_choice = deepcopy(YN_default_choice)
-    yes_char, no_char = O_YN_default_choice[0], no_words[yes_words.index(O_YN_default_choice)][0]
+    if O_YN_default_choice in yes_words:
+        yes_char, no_char = O_YN_default_choice[0], no_words[yes_words.index(O_YN_default_choice)][0]
+    elif O_YN_default_choice in no_words:
+        yes_char, no_char = yes_words[no_words.index(O_YN_default_choice)][0], O_YN_default_choice[0]
+    #
     while True:
         if selected_index_reply_lists != None:
             if (-1 < selected_index_reply_lists < len(yes_words)) and (-1 < selected_index_reply_lists < len(no_words)):
@@ -195,7 +203,7 @@ def YesOrNoQuestion( asked_question="Confirmation{YN_default_choice}",yes_words=
             yes_char = yes_char.lower()
             no_char = no_char.upper()
         #
-        YN_default_choice = "({yes_char}/{no_char})?".format( yes_char = yes_char, no_char = no_char )
+        YN_default_choice = " ({yes_char}/{no_char})?".format( yes_char = yes_char, no_char = no_char )
         ask_msg = asked_question.format(YN_default_choice=YN_default_choice)
         reply = input(ask_msg)
         if (no_input_is_default_validation) and (len(reply)==0): 
@@ -428,7 +436,7 @@ def ask____customize_generated_names():
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 QUESTION = "Do you want customize the generated names of this configuration"
 CHOISED_WAY = YesOrNoQuestion(
-    asked_question="{QUESTION}{YN_default_choice}".format(
+    asked_question="{QUESTION}".format(
         QUESTION = QUESTION
     ),
     YN_default_choice = "no",
@@ -438,7 +446,7 @@ if CHOISED_WAY == True:
     question_list = ask____customize_generated_names()
     for question_dict in question_list:
         CHOISED_DESTINY = YesOrNoQuestion(
-            asked_question="{QUESTION}{YN_default_choice}".format(
+            asked_question="{QUESTION}".format(
                 QUESTION = question_dict["ask"]
             ),
             YN_default_choice = question_dict["YN_default_choice"],
@@ -509,7 +517,7 @@ def ask____customize_configuration_presets():
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 QUESTION = "Do you want customize the default ssh configuration presets"
 CHOISED_WAY = YesOrNoQuestion(
-    asked_question="{QUESTION}{YN_default_choice}".format(
+    asked_question="{QUESTION}".format(
         QUESTION = QUESTION
     ),
     YN_default_choice = "yes",
@@ -519,7 +527,7 @@ if CHOISED_WAY == True:
     question_list = ask____customize_configuration_presets()
     for question_dict in question_list:
         CHOISED_DESTINY = YesOrNoQuestion(
-            asked_question="{QUESTION}{YN_default_choice}".format(
+            asked_question="{QUESTION}".format(
                 QUESTION = question_dict["ask"]
             ),
             YN_default_choice = question_dict["YN_default_choice"],
@@ -553,7 +561,7 @@ def ask____customize_playload_destination():
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 QUESTION = "Do you want customize the default playload destination"
 CHOISED_WAY = YesOrNoQuestion(
-    asked_question="{QUESTION}{YN_default_choice}".format(
+    asked_question="{QUESTION}".format(
         QUESTION = QUESTION
     ),
     YN_default_choice = "no",
@@ -563,7 +571,7 @@ if CHOISED_WAY == True:
     question_list = ask____customize_playload_destination()
     for question_dict in question_list:
         CHOISED_DESTINY = YesOrNoQuestion(
-            asked_question="{QUESTION}{YN_default_choice}".format(
+            asked_question="{QUESTION}".format(
                 QUESTION = question_dict["ask"]
             ),
             YN_default_choice = question_dict["YN_default_choice"],
