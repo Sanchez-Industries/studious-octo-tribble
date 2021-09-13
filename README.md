@@ -1,4 +1,4 @@
-# STUDIOUS-OCTO-TRIBBLE
+# STUDIOUS-OCTO-TRIBBLE (NOT DONE)
 
 (Only for Linux, designed for Arch-Based, you want that fine for debian-based?... go fork right now!)
 
