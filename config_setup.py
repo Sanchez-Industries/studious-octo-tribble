@@ -25,8 +25,6 @@ from copy import deepcopy
 parser = argparse.ArgumentParser()
 #
 # Args to set usages modes
-parser.add_argument("-f","--force", action="store_true",
-                    help="Forcing and bypass all conditionnal lock of the guided configuration.")
 parser.add_argument("-I","--inject-into-existing-targets", action="store_true",
                     help="Enable the (to an configuration file already existing) target selection feature.")
 parser.add_argument("-In","--inject-into-target", type=int,
