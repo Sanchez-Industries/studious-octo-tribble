@@ -1,4 +1,4 @@
--#!/bin/bash
+#!/bin/bash
 #
 sudo pacman -Syu
 sudo pacman -S python3 libnotify
