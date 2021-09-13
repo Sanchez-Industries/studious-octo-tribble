@@ -61,6 +61,8 @@ args = parser.parse_args()
 if args.inject_into_target:
     args.inject_into_existing_targets = True
 #
+playload_destination = "/etc/ssh/ssh_config" # DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
+#
 def test_target_path_existance(targeted_path, type_precision_mode=False):
     target_path = Path(targeted_path)
     if type_precision_mode:
@@ -75,7 +77,7 @@ def test_target_path_existance(targeted_path, type_precision_mode=False):
 #
 def test_target_path_and_wait_specifics_results(targeted_path, wait_exists_results = True, wait_type_results = None):
     results_of_testing = test_target_path_existance(targeted_path,True)
-    if (type(wait_exists_results) != bool) or (type(wait_exists_results) != int):
+    if (type(wait_exists_results) != bool) and (type(wait_exists_results) != int):
         print("`wait_exists_results` argument of `test_target_path_and_wait_specifics_results` function require an boolean or an integer variable ! not an type : `{}` !".format(type(wait_exists_results)))
         exit(-1)
     else:
@@ -331,7 +333,7 @@ def OpenMenuListOfExistsOverwriteTarget(self,existsList,modularity_mode=False):
 """
 1 - found an free number if `args.inject_into_existing_targets` are disabled, else he take existing targets lists for next
 """
-results_config_id_numbers = find_next_config_number_available(modularity=args.modularity_config_mode)
+results_config_id_numbers = find_next_config_number_available(modularity_mode=args.modularity_config_mode)
 #results_config_id_numbers
 # free_id_number
 # flag_of_nothing
@@ -359,7 +361,6 @@ if args.inject_into_existing_targets:
     1.2 - he made the declaration of defaults value for the `DEFAULT DESTINATION OF THE PLAYLOAD INJECTION` and `DEFAULTS COMMONS VALUES`
 """
 # DEFAULTS COMMONS VALUES
-playload_destination = "/etc/ssh/ssh_config" # DEFAULT DESTINATION OF THE PLAYLOAD INJECTION
 optionnal_setting_PasswordAuthentication = "no"
 optionnal_setting_CheckHostIP = "yes"
 ssh_destination_server_port = 22

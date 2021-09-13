@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 #coding: utf-8
 
-from _typeshed import NoneType
 from os import system
 
 class Studious_Playload_Injector(object):
@@ -20,9 +19,9 @@ class Studious_Playload_Injector(object):
         #
     def inject(self, destination_filepath = None, 
                 configured_playload = None):
-        if type(destination_filepath) == NoneType:
+        if destination_filepath == None:
             destination_filepath = self.destination_filepath
-        if type(configured_playload) == NoneType:
+        if configured_playload == None:
             configured_playload = self.loaded_playload
         #
         try:
