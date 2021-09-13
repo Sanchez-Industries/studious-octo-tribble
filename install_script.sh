@@ -3,5 +3,6 @@
 sudo pacman -Syu
 sudo pacman -S python3 libnotify
 #
-sudo python3 install_script.py
+# not install this for now(not done)
+sudo python3 config_setup.py
 #
