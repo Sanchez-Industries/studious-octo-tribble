@@ -453,7 +453,17 @@ if CHOISED_WAY == True:
             no_input_is_default_validation = question_dict["no_input_is_default_validation"]
             )
         if CHOISED_DESTINY:
-            eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
+            x = question_dict["var"]
+            value = "{v_}".format(
+                v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(
+                    QUESTION = question_dict["ask"]
+                    )
+                )
+            )
+            thismodule = sys.modules[__name__]
+            setattr(thismodule, x, value)
+            print(question_dict["var"],end=" (SETTED FROM INPUT)\n")
+            #eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
 """
             |Do you want customize the default ssh configuration presets ? [Y]|
                 -|
@@ -534,7 +544,17 @@ if CHOISED_WAY == True:
             no_input_is_default_validation = question_dict["no_input_is_default_validation"]
             )
         if CHOISED_DESTINY:
-            eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
+            x = question_dict["var"]
+            value = "{v_}".format(
+                v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(
+                    QUESTION = question_dict["ask"]
+                    )
+                )
+            )
+            thismodule = sys.modules[__name__]
+            setattr(thismodule, x, value)
+            print(question_dict["var"],end=" (SETTED FROM INPUT)\n")
+            #eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
 """
             #if `args.modularity_config_mode` and `args.inject_into_existing_targets` are disabled
             |Do you want customize the default playload destination ? [N]|
@@ -578,7 +598,17 @@ if CHOISED_WAY == True:
             no_input_is_default_validation = question_dict["no_input_is_default_validation"]
             )
         if CHOISED_DESTINY:
-            eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
+            x = question_dict["var"]
+            value = "{v_}".format(
+                v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(
+                    QUESTION = question_dict["ask"]
+                    )
+                )
+            )
+            thismodule = sys.modules[__name__]
+            setattr(thismodule, x, value)
+            print(question_dict["var"],end=" (SETTED FROM INPUT)\n")
+            #eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
 """
     1.5 - injection of first playload in-memory (ssh custom configuration file)
 """
