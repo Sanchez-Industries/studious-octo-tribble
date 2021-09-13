@@ -149,16 +149,19 @@ def check_config_number_availability(code_number,modularity_mode=False):
                     "number_config_id": code_number
                 }
 #
-def find_next_config_number_available(check_numbers_range=(1,1*10**6),modularity_mode=False):
+def find_next_config_number_available(check_numbers_range=(1,1*10**3),modularity_mode=False):
     totally_used_id_numbers,partially_used_id_numbers=[],[]
     result_found = None
     flag_of_nothing = None
     for n in range(check_numbers_range[0],check_numbers_range[1]):
         sample_explained_results = check_config_number_availability(code_number=n,modularity_mode=modularity_mode)
-        if (sample_explained_results["status"] == "available") and (sample_explained_results["amount"] == 1.0):
+        if (sample_explained_results["status"] == "available"): # and (sample_explained_results["amount"] == 1.0):
             flag_of_nothing = False
             result_found = n
-            break
+            return {"free_id_number":result_found, 
+                    "flag_of_nothing":flag_of_nothing, 
+                    "partially_used_id_numbers":partially_used_id_numbers, 
+                    "totally_used_id_numbers":totally_used_id_numbers}
         if (sample_explained_results["status"] == "partially") and (sample_explained_results["amount"] < 1.0):
             partially_used_id_numbers.append(n)
             flag_of_nothing = False
@@ -333,7 +336,9 @@ def OpenMenuListOfExistsOverwriteTarget(self,existsList,modularity_mode=False):
 """
 1 - found an free number if `args.inject_into_existing_targets` are disabled, else he take existing targets lists for next
 """
+print("Search an available config number...")
 results_config_id_numbers = find_next_config_number_available(modularity_mode=args.modularity_config_mode)
+print("Finish.")
 #results_config_id_numbers
 # free_id_number
 # flag_of_nothing
@@ -424,20 +429,20 @@ def ask____customize_generated_names():
 QUESTION = "Do you want customize the generated names of this configuration"
 CHOISED_WAY = YesOrNoQuestion(
     asked_question="{QUESTION}{YN_default_choice}".format(
-        QUESTION = QUESTION,
-        YN_default_choice = "no",
-        no_input_is_default_validation = True
-        )
+        QUESTION = QUESTION
+    ),
+    YN_default_choice = "no",
+    no_input_is_default_validation = True
     )
 if CHOISED_WAY == True:
     question_list = ask____customize_generated_names()
     for question_dict in question_list:
         CHOISED_DESTINY = YesOrNoQuestion(
             asked_question="{QUESTION}{YN_default_choice}".format(
-                QUESTION = question_dict["ask"],
-                YN_default_choice = question_dict["YN_default_choice"],
-                no_input_is_default_validation = question_dict["no_input_is_default_validation"]
-                )
+                QUESTION = question_dict["ask"]
+            ),
+            YN_default_choice = question_dict["YN_default_choice"],
+            no_input_is_default_validation = question_dict["no_input_is_default_validation"]
             )
         if CHOISED_DESTINY:
             eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
@@ -505,20 +510,20 @@ def ask____customize_configuration_presets():
 QUESTION = "Do you want customize the default ssh configuration presets"
 CHOISED_WAY = YesOrNoQuestion(
     asked_question="{QUESTION}{YN_default_choice}".format(
-        QUESTION = QUESTION,
-        YN_default_choice = "yes",
-        no_input_is_default_validation = True
-        )
+        QUESTION = QUESTION
+    ),
+    YN_default_choice = "yes",
+    no_input_is_default_validation = True
     )
 if CHOISED_WAY == True:
     question_list = ask____customize_configuration_presets()
     for question_dict in question_list:
         CHOISED_DESTINY = YesOrNoQuestion(
             asked_question="{QUESTION}{YN_default_choice}".format(
-                QUESTION = question_dict["ask"],
-                YN_default_choice = question_dict["YN_default_choice"],
-                no_input_is_default_validation = question_dict["no_input_is_default_validation"]
-                )
+                QUESTION = question_dict["ask"]
+            ),
+            YN_default_choice = question_dict["YN_default_choice"],
+            no_input_is_default_validation = question_dict["no_input_is_default_validation"]
             )
         if CHOISED_DESTINY:
             eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
@@ -549,20 +554,20 @@ def ask____customize_playload_destination():
 QUESTION = "Do you want customize the default playload destination"
 CHOISED_WAY = YesOrNoQuestion(
     asked_question="{QUESTION}{YN_default_choice}".format(
-        QUESTION = QUESTION,
-        YN_default_choice = "no",
-        no_input_is_default_validation = True
-        )
+        QUESTION = QUESTION
+    ),
+    YN_default_choice = "no",
+    no_input_is_default_validation = True
     )
 if CHOISED_WAY == True:
     question_list = ask____customize_playload_destination()
     for question_dict in question_list:
         CHOISED_DESTINY = YesOrNoQuestion(
             asked_question="{QUESTION}{YN_default_choice}".format(
-                QUESTION = question_dict["ask"],
-                YN_default_choice = question_dict["YN_default_choice"],
-                no_input_is_default_validation = question_dict["no_input_is_default_validation"]
-                )
+                QUESTION = question_dict["ask"]
+            ),
+            YN_default_choice = question_dict["YN_default_choice"],
+            no_input_is_default_validation = question_dict["no_input_is_default_validation"]
             )
         if CHOISED_DESTINY:
             eval(question_dict["var"]+" = {v_}".format(v_ = input("{QUESTION} -- CHANGE BY VALUE: ".format(QUESTION = question_dict["ask"]))))
