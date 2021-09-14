@@ -20,6 +20,7 @@ from StudiousParasites.StudiousPlayloadInjector import Studious_Playload_Injecto
 import argparse
 from pathlib import Path
 from copy import deepcopy
+import sys
 #
 # args Parsing of the command line tool
 parser = argparse.ArgumentParser()
@@ -616,6 +617,17 @@ if CHOISED_WAY == True:
 # Declaration and formating the playloads configuration for fast injections to the system
 # ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~ * ~~~
 # SSH_CONFIG configuration (PLAYLOAD SAMPLE)
+if commented_IdentityFile == "":
+    commented_IdentityFile = "#IdentityFile ~/.ssh/id_rsa"
+elif len(commented_IdentityFile)>0:
+    commented_IdentityFile = "IdentityFile {ssh_folder_of_user_path}/{commented_IdentityFile}".format(
+        ssh_folder_of_user_path = ssh_folder_of_user_path,
+        commented_IdentityFile = commented_IdentityFile
+    )
+    if "#" in commented_IdentityFile:
+        commented_IdentityFile = "#{commented_IdentityFile}".format(
+            commented_IdentityFile = commented_IdentityFile
+        )
 playload_to_ssh_config = """
 Host {short_name_Host}
 	PasswordAuthentication {optionnal_setting_PasswordAuthentication}
@@ -625,7 +637,7 @@ Host {short_name_Host}
 	Hostname  {server_domain_name_or_ip_addr}
 	User {User}
 	Protocol 2
-	{commented_IdentityFile}IdentityFile {ssh_folder_of_user_path}{ssh_id_file}
+	{commented_IdentityFile}IdentityFile {ssh_folder_of_user_path}
 	DynamicForward {dynamic_port_of_proxy}
 	RequestTTY no
 	SessionType none
