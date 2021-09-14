@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 #coding: utf-8
 # LIBRARY'S IMPORTATION
-from config_setup import ParasitesConfigTool
 from os import system
 from StudiousParasites.StudiousPlayloadInjector import Studious_Playload_Injector as PlayloadInjector
 ParasitesConfigTool = PlayloadInjector()
