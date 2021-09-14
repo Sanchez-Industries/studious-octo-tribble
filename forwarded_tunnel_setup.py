@@ -1,19 +1,19 @@
 #!/usr/bin/python3
 #coding: utf-8
 # LIBRARY'S IMPORTATION
+from config_setup import ParasitesConfigTool
 from os import system
-from typing_extensions import Required 
 from StudiousParasites.StudiousPlayloadInjector import Studious_Playload_Injector as PlayloadInjector
+ParasitesConfigTool = PlayloadInjector()
 import argparse
 from pathlib import Path
-from copy import deepcopy
 import sys
 # args Parsing of the command line tool
 parser = argparse.ArgumentParser("Forwarded Tunnel Setup - v1")
 #
 # Args to set usages modes
-parser.add_argument("connection-name", type=str,
-                    help="Name of the connection setting.", required=True)
+parser.add_argument("connection_name", type=str,
+                    help="Name of the connection setting.")
 parser.add_argument("-s", "--script-location-filepath", type=str,
                     help="Script ,default is an bash script into /opt/ and name start with `autotunnel`.")
 parser.add_argument("-fp","--forwarding-ports", type=str,
@@ -37,12 +37,14 @@ else:
 if args.SSH_server_username:
     SSH_server_username = args.SSH_server_username
 #
-ConnectionName = args.ConnectionName
+ConnectionName = args.connection_name
 #
 if args.script_location_filepath:
     script_location_to_be_called_by_the_service = args.script_location_filepath
 else:
-    script_location_to_be_called_by_the_service = "/opt/autotunnel_p{}.sh".format(args.ports.replace(":","->"))
+    script_location_to_be_called_by_the_service = "/opt/autotunnel_p{}.sh".format(args.forwarding_ports.replace(":","-"))
+#
+service_location_systemd_file = "/etc/systemd/system/autotunnel_p{}.service".format(args.forwarding_ports.replace(":","-"))
 #
 # =====================(RECOMMENDED: DO NOT CHANGE)
 # OTHER SPECIFICS CONFIGURATIONS LINES ARGS (RECOMMENDED: DO NOT CHANGE)
@@ -72,13 +74,19 @@ WantedBy=multi-user.target
 """.format( script_location_to_be_called_by_the_service = script_location_to_be_called_by_the_service,
             service_description = "{} Script - ( {} )".format(
                 ConnectionName, 
-                args.ports.replace(":","->")
+                args.forwarding_ports.replace(":","->")
             ),
             setting_unrecommended_to_mods_StartLimitIntervalSec = setting_unrecommended_to_mods_StartLimitIntervalSec,
             setting_unrecommended_to_mods_RestartSec = setting_unrecommended_to_mods_RestartSec,
             setting_unrecommended_to_mods_User = setting_unrecommended_to_mods_User,
             setting_unrecommended_to_mods_Restart = setting_unrecommended_to_mods_Restart )
-local_port,dest_port = args.ports.split(":")
+ParasitesConfigTool.init()
+ParasitesConfigTool.setDestinationOfInjection(service_location_systemd_file)
+ParasitesConfigTool.setPlayloadToInjection(automatic_socks5_connection_systemd_service)
+ParasitesConfigTool.inject()
+#
+#
+local_port,dest_port = args.forwarding_ports.split(":")
 playload_bash_file_autoSOCKS5_sh="""
 while :
 do
@@ -93,5 +101,19 @@ done
             local_port = local_port,
             dest_port = dest_port
           )
-Playload_ = PlayloadInjector()
-#Playload_.setDestinationOfInjection("")
+ParasitesConfigTool.init()
+ParasitesConfigTool.setDestinationOfInjection(script_location_to_be_called_by_the_service)
+ParasitesConfigTool.setPlayloadToInjection(playload_bash_file_autoSOCKS5_sh)
+ParasitesConfigTool.inject()
+# ~~~
+system("sudo chmod +x {script_path}".format(
+        script_path = script_location_to_be_called_by_the_service
+    )
+)
+system("sudo systemctl enable --now {service_name}".format(
+        service_name = "autotunnel_p{}.service".format(
+            args.forwarding_ports.replace(":","-")
+        )
+    )
+)
+# ~~~ SOCKS5 SERVICE. DEPLOY DONE ~~~
